@@ -25,7 +25,7 @@ to idiomatic Clojure vectors of hashmaps.
 
 ### Dependency
 
-    [finagle-clojure/mysql "0.7.1-SNAPSHOT"]
+    [finagle-clojure/mysql "0.8.0-SNAPSHOT"]
 
 ### Namespaces
 

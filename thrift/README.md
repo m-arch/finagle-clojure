@@ -6,7 +6,7 @@ This module contains wrappers for creating Thrift `Service`s & `Client`s.
 
 ### Dependency
 
-    [finagle-clojure/thrift "0.7.1-SNAPSHOT"]
+    [finagle-clojure/thrift "0.8.0-SNAPSHOT"]
 
 
 ### Namespaces

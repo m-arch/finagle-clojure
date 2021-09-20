@@ -5,7 +5,6 @@
  */
 package test;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -18,8 +17,6 @@ import java.util.Collections;
 import java.util.BitSet;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.apache.thrift.*;
 import org.apache.thrift.async.*;
@@ -27,9 +24,12 @@ import org.apache.thrift.meta_data.*;
 import org.apache.thrift.transport.*;
 import org.apache.thrift.protocol.*;
 
+import com.twitter.scrooge.ThriftStructIface;
+import com.twitter.scrooge.internal.TProtocols;
+
 // No additional import required for struct/union.
 
-public class BreedInfoResponse implements TBase<BreedInfoResponse, BreedInfoResponse._Fields>, java.io.Serializable, Cloneable {
+public class BreedInfoResponse implements TBase<BreedInfoResponse, BreedInfoResponse._Fields>, java.io.Serializable, Cloneable, ThriftStructIface {
   private static final TStruct STRUCT_DESC = new TStruct("BreedInfoResponse");
 
   private static final TField NAME_FIELD_DESC = new TField("name", TType.STRING, (short)1);
@@ -39,7 +39,7 @@ public class BreedInfoResponse implements TBase<BreedInfoResponse, BreedInfoResp
   public String name;
   public boolean beautiful;
 
-  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  /** The set of fields this object contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
     NAME((short)1, "name"),
     BEAUTIFUL((short)2, "beautiful");
@@ -58,11 +58,11 @@ public class BreedInfoResponse implements TBase<BreedInfoResponse, BreedInfoResp
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
         case 1: // NAME
-  	return NAME;
+          return NAME;
         case 2: // BEAUTIFUL
-  	return BEAUTIFUL;
+          return BEAUTIFUL;
         default:
-  	return null;
+          return null;
       }
     }
   
@@ -103,17 +103,62 @@ public class BreedInfoResponse implements TBase<BreedInfoResponse, BreedInfoResp
 
   // isset id assignments
   private static final int __BEAUTIFUL_ISSET_ID = 0;
-  private BitSet __isset_bit_vector = new BitSet(1);
+  private final BitSet __isset_bit_vector = new BitSet(1);
 
   public static final Map<_Fields, FieldMetaData> metaDataMap;
+  
+  /**
+   * FieldValueMetaData.type returns TType.STRING for both string and binary field values.
+   * This set can be used to determine if a FieldValueMetaData with type TType.STRING is actually
+   * declared as binary in the idl file.
+   */
+  public static final Set<FieldValueMetaData> binaryFieldValueMetaDatas;
+  
+  private static FieldValueMetaData registerBinaryFieldValueMetaData(FieldValueMetaData f, Set<FieldValueMetaData> binaryFieldValues) {
+    binaryFieldValues.add(f);
+    return f;
+  }
+  
   static {
     Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
+    Set<FieldValueMetaData> tmpSet = new HashSet<FieldValueMetaData>();
     tmpMap.put(_Fields.NAME, new FieldMetaData("name", TFieldRequirementType.DEFAULT,
       new FieldValueMetaData(TType.STRING)));
     tmpMap.put(_Fields.BEAUTIFUL, new FieldMetaData("beautiful", TFieldRequirementType.DEFAULT,
       new FieldValueMetaData(TType.BOOL)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
+    binaryFieldValueMetaDatas = Collections.unmodifiableSet(tmpSet);
     FieldMetaData.addStructMetaDataMap(BreedInfoResponse.class, metaDataMap);
+  }
+
+  /**
+   * Returns a map of the annotations and their values for this struct declaration.
+   * See fieldAnnotations or valueAnnotations for the annotations attached to struct fields
+   * or enum values.
+   */
+  public static final Map<String, String> structAnnotations;
+  static {
+    structAnnotations = Collections.emptyMap();
+  }
+
+  /**
+   * Returns a map of the annotations for each of this struct's fields, keyed by the field.
+   * See structAnnotations for the annotations attached to this struct's declaration.
+   */
+  public static final Map<_Fields, Map<String, String>> fieldAnnotations;
+  static {
+    fieldAnnotations = Collections.emptyMap();
+  }
+
+  /**
+   * Returns the set of fields that have a configured default value.
+   * The default values for these fields can be obtained by
+   * instantiating this class with the default constructor.
+   */
+  public static final Set<_Fields> hasDefaultValue;
+  static {
+    Set<_Fields> tmp = EnumSet.noneOf(_Fields.class);
+    hasDefaultValue = Collections.unmodifiableSet(tmp);
   }
 
 
@@ -142,11 +187,17 @@ public class BreedInfoResponse implements TBase<BreedInfoResponse, BreedInfoResp
     this.beautiful = other.beautiful;
   }
 
+  public static List<String> validateNewInstance(BreedInfoResponse item) {
+    final List<String> buf = new ArrayList<String>();
+
+    return buf;
+  }
+
   public BreedInfoResponse deepCopy() {
     return new BreedInfoResponse(this);
   }
 
-  @Override
+  @java.lang.Override
   public void clear() {
     this.name = null;
     setBeautifulIsSet(false);
@@ -167,7 +218,7 @@ public class BreedInfoResponse implements TBase<BreedInfoResponse, BreedInfoResp
     this.name = null;
   }
 
-  /** Returns true if field name is set (has been asigned a value) and false otherwise */
+  /** Returns true if field name is set (has been assigned a value) and false otherwise */
   public boolean isSetName() {
     return this.name != null;
   }
@@ -193,7 +244,7 @@ public class BreedInfoResponse implements TBase<BreedInfoResponse, BreedInfoResp
   __isset_bit_vector.clear(__BEAUTIFUL_ISSET_ID);
   }
 
-  /** Returns true if field beautiful is set (has been asigned a value) and false otherwise */
+  /** Returns true if field beautiful is set (has been assigned a value) and false otherwise */
   public boolean isSetBeautiful() {
     return __isset_bit_vector.get(__BEAUTIFUL_ISSET_ID);
   }
@@ -202,6 +253,7 @@ public class BreedInfoResponse implements TBase<BreedInfoResponse, BreedInfoResp
     __isset_bit_vector.set(__BEAUTIFUL_ISSET_ID, value);
   }
 
+  @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case NAME:
@@ -226,12 +278,12 @@ public class BreedInfoResponse implements TBase<BreedInfoResponse, BreedInfoResp
     case NAME:
       return getName();
     case BEAUTIFUL:
-      return new Boolean(isBeautiful());
+      return Boolean.valueOf(isBeautiful());
     }
     throw new IllegalStateException();
   }
 
-  /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+  /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
   public boolean isSet(_Fields field) {
     if (field == null) {
       throw new IllegalArgumentException();
@@ -246,7 +298,7 @@ public class BreedInfoResponse implements TBase<BreedInfoResponse, BreedInfoResp
     throw new IllegalStateException();
   }
 
-  @Override
+  @java.lang.Override
   public boolean equals(Object that) {
     if (that == null)
       return false;
@@ -256,6 +308,10 @@ public class BreedInfoResponse implements TBase<BreedInfoResponse, BreedInfoResp
   }
 
   public boolean equals(BreedInfoResponse that) {
+    return equalsWithoutPassthrough(that);
+  }
+
+  private boolean equalsWithoutPassthrough(BreedInfoResponse that) {
     if (that == null)
       return false;
     boolean this_present_name = true && this.isSetName();
@@ -274,22 +330,20 @@ public class BreedInfoResponse implements TBase<BreedInfoResponse, BreedInfoResp
       if (this.beautiful != that.beautiful)
         return false;
     }
-
     return true;
   }
 
-  @Override
+
+  @java.lang.Override
   public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    boolean present_name = true && (isSetName());
-    builder.append(present_name);
-    if (present_name)
-      builder.append(name);
-    boolean present_beautiful = true;
-    builder.append(present_beautiful);
-    if (present_beautiful)
-      builder.append(beautiful);
-    return builder.toHashCode();
+    int hashCode = 1;
+    if (isSetName()) {
+      hashCode = 31 * hashCode + name.hashCode();
+    }
+    {
+      hashCode = 31 * hashCode + ((Boolean)beautiful).hashCode();
+    }
+    return hashCode;
   }
 
   public int compareTo(BreedInfoResponse other) {
@@ -339,19 +393,13 @@ public class BreedInfoResponse implements TBase<BreedInfoResponse, BreedInfoResp
       }
       switch (field.id) {
         case 1: // NAME
-          if (field.type == TType.STRING) {
-            this.name = iprot.readString();
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
+          TProtocols.validateFieldType(TType.STRING, field.type, "name");
+          this.name = iprot.readString();
           break;
         case 2: // BEAUTIFUL
-          if (field.type == TType.BOOL) {
-            this.beautiful = iprot.readBool();
-            setBeautifulIsSet(true);
-          } else {
-            TProtocolUtil.skip(iprot, field.type);
-          }
+          TProtocols.validateFieldType(TType.BOOL, field.type, "beautiful");
+          this.beautiful = iprot.readBool();
+          setBeautifulIsSet(true);
           break;
         default:
           TProtocolUtil.skip(iprot, field.type);
@@ -380,7 +428,7 @@ public class BreedInfoResponse implements TBase<BreedInfoResponse, BreedInfoResp
     oprot.writeStructEnd();
   }
 
-  @Override
+  @java.lang.Override
   public String toString() {
     StringBuilder sb = new StringBuilder("BreedInfoResponse(");
     boolean first = true;
@@ -403,3 +451,4 @@ public class BreedInfoResponse implements TBase<BreedInfoResponse, BreedInfoResp
     // check for required fields
   }
 }
+

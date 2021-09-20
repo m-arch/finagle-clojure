@@ -11,6 +11,75 @@
     (filter #(and (.isFile %) (.endsWith (.getName %) ".thrift")))
     (map #(.getPath %))))
 
+
+(defprotocol CljToScala
+  (clj->scala [obj]))
+
+(extend-protocol CljToScala
+  clojure.lang.PersistentVector
+  (clj->scala [seqn]
+    (.toSeq (scala.collection.JavaConverters/asScalaBuffer seqn)))
+  clojure.lang.PersistentHashSet
+  (clj->scala [hset]
+    (.toSet (scala.collection.JavaConverters/asScalaSet hset)))
+  clojure.lang.PersistentArrayMap
+  (clj->scala [hmap]
+    (.$plus$plus (scala.collection.Map/empty$
+                  (.asScala (scala.collection.JavaConverters/mapAsScalaMapConverter (java.util.HashMap. {}))))
+                 (.asScala (scala.collection.JavaConverters/mapAsScalaMapConverter (java.util.HashMap. hmap)))))
+  clojure.lang.PersistentList$EmptyList
+  (clj->scala [lst]
+    (.toList (scala.collection.JavaConverters/asScalaBuffer lst)))
+  clojure.lang.PersistentList
+  (clj->scala [lst]
+    (.toList (scala.collection.JavaConverters/asScalaBuffer lst)))
+  clojure.lang.LazySeq
+  (clj->scala [lst]
+    (.toList (scala.collection.JavaConverters/asScalaBuffer lst))))
+
+
+(defrecord Configs [dest-folder include-paths thrift-files flags namespace-mappings verbose strict gen-adapt
+                    skip-unchanged language-flags file-map-path dry-run language default-namespace
+                    scala-warn-on-java-ns-fallback java-ser-enum-type add-root-dir-importer])
+
+(defn configure-settings
+  [project]
+  (let [absolute-dest-path (->> (or (get-in project [:finagle-clojure :thrift-output-path])  "src/java")
+                                (io/file (:root project))
+                                (.getAbsolutePath))]
+    (Configs. absolute-dest-path
+              (clj->scala '((or (get-in project [:finagle-clojure :thrift-source-path]) "src/thrift")))
+              (clj->scala (thrift-files (:root project) (or (get-in project
+                                                                    [:finagle-clojure :thrift-source-path])
+                                                            "src/thrift")))
+              (clj->scala #{"--finagle" "--java-passthrough --skip-unchanged"})
+              (clj->scala {})
+              false
+              true
+              false
+              false
+              (clj->scala ["java"])
+              (scala.Option/empty)
+              false
+              "java"
+              (com.twitter.scrooge.CompilerDefaults/defaultNamespace)
+              false
+              false
+              true)))
+
+(defn initiate-scrooge-config
+  [configured-settings]
+  (com.twitter.scrooge.ScroogeConfig. (:dest-folder configured-settings) (:include-paths configured-settings)
+                                      (:thrift-files configured-settings) (:flags configured-settings)
+                                      (:namespace-mappings configured-settings) (:verbose configured-settings)
+                                      (:strict configured-settings) (:gen-adapt configured-settings)
+                                      (:skip-unchanged configured-settings) (:language-flags configured-settings)
+                                      (:file-map-path configured-settings) (:dry-run configured-settings)
+                                      (:language configured-settings) (:default-namespace configured-settings)
+                                      (:scala-warn-on-java-ns-fallback configured-settings)
+                                      (:java-ser-enum-type configured-settings) (:add-root-dir-importer configured-settings)))
+
+
 (defn scrooge
   "Compile Thrift definitions into Java classes using Scrooge.
 
@@ -33,24 +102,9 @@
     lein finagle-clojure scrooge :lint --help # shows available options for the linter
     lein finagle-clojure scrooge :lint -w # show linter warnings as well (warnings won't prevent compilation)"
   [project & options]
-  (let [subtask (first options)
-        project-root (:root project)
-        source-path (get-in project [:finagle-clojure :thrift-source-path])
-        raw-dest-path (get-in project [:finagle-clojure :thrift-output-path])]
-    (if-not (and source-path raw-dest-path)
-      (leiningen.core.main/info "No config found for lein-finagle-clojure, not compiling Thrift for" (:name project))
-      (let [absolute-dest-path (->> raw-dest-path (io/file project-root) (.getAbsolutePath))
-            thrift-files (thrift-files project-root source-path)
-            scrooge-args (concat ["--finagle" "--skip-unchanged" "--language" "java" "--dest" absolute-dest-path] thrift-files)]
-        (when (= subtask ":lint")
-          (let [default-args ["--disable-rule" "Namespaces"]
-                additional-args (rest options)
-                linter-args (concat default-args additional-args thrift-files)]
-            (leiningen.core.main/info "Linting Thrift files:" thrift-files)
-            (com.twitter.scrooge.linter.Main/main (into-array String linter-args))))
-        (leiningen.core.main/info "Compiling Thrift files:" thrift-files)
-        (leiningen.core.main/debug "Calling scrooge with parameters:" scrooge-args)
-        (com.twitter.scrooge.Main/main (into-array String scrooge-args))))))
+  (let [configured-settings (configure-settings project)]
+    (leiningen.core.main/info "Compiling Thrift files:" (:thrift-files configured-settings))
+    (.run (com.twitter.scrooge.Compiler. (initiate-scrooge-config configured-settings)))))
 
 (defn javac-hook
   [f project & args]
