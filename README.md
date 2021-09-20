@@ -4,6 +4,11 @@ A thin wrapper around Finagle & Twitter Future.
 This library assumes you are familiar with Finagle.
 If not, check out its [docs](https://twitter.github.io/finagle/guide/).
 
+# Note 
+
+This fork of the main repo is not stable, it's an updated replacement of the original repo that might break under some circumstences.
+To install you need to clone the repo and run lein install locally for sub directories first starting by core and then for other directories.
+
 Latest version: 0.8.0-SNAPSHOT
 
 ## Building
