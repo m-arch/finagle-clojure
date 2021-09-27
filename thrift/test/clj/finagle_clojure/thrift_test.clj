@@ -58,16 +58,20 @@
     (spit file-name (slurp resource-uri))
     (io/as-file file-name)))
 
-(def ^java.io.File private-key (resolve-on-filesystem "test-only.key"))
+(def ^java.io.File private-key (resolve-on-filesystem "priv.pem"))
 
-(def ^java.io.File public-key (resolve-on-filesystem "test-only.pem"))
+(def ^java.io.File certificate (resolve-on-filesystem "test-only.pem"))
+
+(def ^java.io.File ca-certificate (resolve-on-filesystem "CA.pem"))
 
 (fact "keys exist"
   (.exists private-key) => true
-  (.exists public-key) => true)
+  (.exists certificate) => true
+  (.exists ca-certificate) => true)
 
 (def ^com.twitter.finagle.ListeningServer tls-dog-breed-server
-  (thrift/serve-tls ":9998" dog-breed-service :priv (.getAbsolutePath private-key) :pub (.getAbsolutePath public-key)))
+  (thrift/serve-tls ":9998" dog-breed-service :priv (.getAbsolutePath private-key) :cert (.getAbsolutePath certificate)
+                    :ca-cert (.getAbsolutePath ca-certificate)))
 
 (def ^test.DogBreedService$ServiceIface tls-dog-breed-client
   (thrift/client-tls "localhost:9998" test.DogBreedService (thrift/insecure-ssl-context)))
@@ -80,4 +84,6 @@
 
 (io/delete-file private-key true)
 
-(io/delete-file public-key true)
+(io/delete-file certificate true)
+
+(io/delete-file ca-certificate true)

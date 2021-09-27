@@ -11,9 +11,12 @@
             [finagle-clojure.scala :as scala]
             [clojure.java.io :as io])
   (:import [com.twitter.finagle ListeningServer Service Thrift]
-           [com.twitter.finagle.transport Transport$TLSServerEngine Transport$TLSClientEngine]
-           [com.twitter.finagle.ssl Ssl]
-           [javax.net.ssl SSLContext X509TrustManager]
+           [com.twitter.finagle.transport Transport$ClientSsl]
+           [com.twitter.finagle.ssl.server SslServerConfiguration]
+           [com.twitter.finagle.ssl.client SslClientConfiguration]
+           [com.twitter.finagle.ssl Engine KeyCredentials$CertKeyAndChain ClientAuthConfig
+            TrustCredentialsConfig CipherSuitesConfig ProtocolsConfig ApplicationProtocolsConfig]
+           [javax.net.ssl SSLEngine SSLContext X509TrustManager]
            [java.net InetSocketAddress]
            [java.security.cert X509Certificate]))
 
@@ -86,25 +89,34 @@
   *Arguments*:
 
     * `addr`: The port on which to serve.
-    * `service`: The Service that should be served.
+    * `service`: The Service that should be sterved.
     * `opts`: key/value options for the server, includes:
+      - `:cert`: (required) fully qualified file name for the certificate file
+                 in PERM format used for running the server
       - `:priv`: (required) fully qualified file name for the private key
                  in PEM format used for running the server
-      - `:pub`: (required) fully qualified file name for the public key
+      - `:ca-cert`: (required) fully qualified file name for ca certificate file
                 in PEM format used for running the server
 
   *Returns*:
 
   A new com.twitter.finagle.ListeningServer."
   [^String addr ^Service service & opts]
-  (let [{:keys [priv pub]} opts]
-    (if (not (and (.exists (io/file priv)) (.exists (io/file pub))))
+  (let [{:keys [cert priv ca-cert]} opts]
+    (if (not (and (.exists (io/file cert)) (.exists (io/file priv)) (.exists (io/file ca-cert))))
       (throw (IllegalArgumentException. "Could not find public and/or private key."))
-      (->
-        (Thrift/server)
-        (.configured (.mk (Transport$TLSServerEngine.
-                            (options/option (scala/Function0 (Ssl/server pub priv nil nil nil))))))
-        (.serveIface addr service)))))
+      (let [^SslServerConfiguration server-configs (SslServerConfiguration.
+                                                    (KeyCredentials$CertKeyAndChain. (io/file cert) 
+                                                                                     (io/file priv) 
+                                                                                     (io/file ca-cert))
+                                                    (ClientAuthConfig/NEEDED) (TrustCredentialsConfig/INSECURE)
+                                                    (CipherSuitesConfig/UNSPECIFIED) (ProtocolsConfig/UNSPECIFIED)
+                                                    (ApplicationProtocolsConfig/UNSPECIFIED))]
+        (->
+         (Thrift/server)
+         (.withTransport )
+         (.tls server-configs)
+         (.serveIface addr service))))))
 
 (defn announce*
   "Announce this server to the configured load balancer.
@@ -174,9 +186,9 @@
 
 (defn ^:no-doc ssl-context
   "Creates an SSLContext object that uses the provided TrustManagers"
-  [trust-mgrs]
+  [key-mgrs trust-mgrs]
   (let [ctx (SSLContext/getInstance "TLS")]
-    (.init ctx nil trust-mgrs nil)
+    (.init ctx key-mgrs trust-mgrs nil)
     ctx))
 
 (defn ^:no-doc get-tls-engine
@@ -184,12 +196,7 @@
   use the default SSLContext."
   [ssl-ctx]
   (let [engine-ctx (if (instance? SSLContext ssl-ctx) ssl-ctx (ssl-context nil))]
-    (Transport$TLSClientEngine.
-      (options/option
-        (scala/Function [inet]
-          (if (instance? InetSocketAddress inet)
-            (Ssl/client engine-ctx (.getHostName inet) (.getPort inet))
-            (Ssl/client engine-ctx)))))))
+    (.createSSLEngine engine-ctx)))
 
 (defn insecure-ssl-context
   "Returns a naive SSLContext that provides no certificate verification.
@@ -197,6 +204,7 @@
   THIS SHOULD ONLY BE USED FOR TESTING."
   []
   (ssl-context
+   nil
     (into-array
       (list
         (proxy [X509TrustManager] []
@@ -229,5 +237,6 @@
      (import ~(finagle-interface client-interface-class))
      (->
        (Thrift/client)
-       (.configured (.mk (get-tls-engine ~ssl-ctx)))
+       (.withTransport)
+       (.tls ~ssl-ctx)
        (.newIface ~addr ~(finagle-interface client-interface-class)))))

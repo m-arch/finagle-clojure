@@ -6,7 +6,7 @@
   :scm {:name "git" :url "https://github.com/finagle/finagle-clojure"}
   :plugins [[lein-midje "3.2"]
             [lein-finagle-clojure "0.8.0-SNAPSHOT" :hooks false]]
-  :profiles {:test {:dependencies [[midje "1.8.3" :exclusions [org.clojure/clojure]]]
+  :profiles {:test {:dependencies [[midje "1.10.4" :exclusions [org.clojure/clojure]]]
                     :resource-paths ["test/resources"]}
              :dev [:test {:dependencies [[org.clojure/clojure "1.10.3"]]}]
              :1.7 [:test {:dependencies [[org.clojure/clojure "1.7.0"]]}]

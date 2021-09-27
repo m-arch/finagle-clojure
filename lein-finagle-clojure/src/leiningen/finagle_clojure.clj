@@ -46,13 +46,12 @@
   [project]
   (let [absolute-dest-path (->> (or (get-in project [:finagle-clojure :thrift-output-path])  "src/java")
                                 (io/file (:root project))
-                                (.getAbsolutePath))]
+                                (.getAbsolutePath))
+        thrift-path (or (get-in project [:finagle-clojure :thrift-source-path]) "src/thrift")]
     (Configs. absolute-dest-path
-              (clj->scala '((or (get-in project [:finagle-clojure :thrift-source-path]) "src/thrift")))
-              (clj->scala (thrift-files (:root project) (or (get-in project
-                                                                    [:finagle-clojure :thrift-source-path])
-                                                            "src/thrift")))
-              (clj->scala #{"--finagle" "--java-passthrough --skip-unchanged"})
+              (clj->scala (into '() [thrift-path]))
+              (clj->scala (into '() (thrift-files (:root project) thrift-path)))
+              (clj->scala #{"--finagle" "--java-passthrough"})
               (clj->scala {})
               false
               true

@@ -43,15 +43,15 @@ import com.twitter.finagle.thrift.AbstractThriftService;
 
 public class DogBreedService {
   public interface Iface {
-    public BreedInfoResponse breedInfo(String breed) throws TException;
+    public BreedInfoResponse breedInfo(String breedName) throws TException;
   }
 
   public interface AsyncIface {
-    public void breedInfo(String breed, AsyncMethodCallback<BreedInfoResponse> resultHandler) throws TException;
+    public void breedInfo(String breedName, AsyncMethodCallback<BreedInfoResponse> resultHandler) throws TException;
   }
 
   public interface ServiceIface extends AbstractThriftService {
-    public Future<BreedInfoResponse> breedInfo(String breed);
+    public Future<BreedInfoResponse> breedInfo(String breedName);
   }
 
   public static class Client extends TServiceClient implements Iface {
@@ -75,17 +75,17 @@ public class DogBreedService {
       super(iprot, oprot);
     }
 
-    public BreedInfoResponse breedInfo(String breed) throws TException
+    public BreedInfoResponse breedInfo(String breedName) throws TException
     {
-      send_breedInfo(breed);
+      send_breedInfo(breedName);
       return recv_breedInfo();
     }
 
-    public void send_breedInfo(String breed) throws TException
+    public void send_breedInfo(String breedName) throws TException
     {
       oprot_.writeMessageBegin(new TMessage("breedInfo", TMessageType.CALL, ++seqid_));
       breedInfo_args __args__ = new breedInfo_args();
-      __args__.setBreed(breed);
+      __args__.setBreedName(breedName);
       __args__.write(oprot_);
       oprot_.writeMessageEnd();
       oprot_.getTransport().flush();
@@ -134,24 +134,24 @@ public class DogBreedService {
       this.transport = transport;
     }
 
-    public void breedInfo(String breed, AsyncMethodCallback<BreedInfoResponse> __resultHandler__) throws TException {
+    public void breedInfo(String breedName, AsyncMethodCallback<BreedInfoResponse> __resultHandler__) throws TException {
       checkReady();
-      breedInfo_call __method_call__ = new breedInfo_call(breed, __resultHandler__, this, super.getProtocolFactory(), this.transport);
+      breedInfo_call __method_call__ = new breedInfo_call(breedName, __resultHandler__, this, super.getProtocolFactory(), this.transport);
       this.manager.call(__method_call__);
     }
 
     public static class breedInfo_call extends TAsyncMethodCall<BreedInfoResponse> {
-      private String breed;
+      private String breedName;
 
-      public breedInfo_call(String breed, AsyncMethodCallback<BreedInfoResponse> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
+      public breedInfo_call(String breedName, AsyncMethodCallback<BreedInfoResponse> __resultHandler__, TAsyncClient __client__, TProtocolFactory __protocolFactory__, TNonblockingTransport __transport__) throws TException {
         super(__client__, __protocolFactory__, __transport__, __resultHandler__, false);
-        this.breed = breed;
+        this.breedName = breedName;
       }
 
       public void write_args(TProtocol __prot__) throws TException {
         __prot__.writeMessageBegin(new TMessage("breedInfo", TMessageType.CALL, 0));
         breedInfo_args __args__ = new breedInfo_args();
-        __args__.setBreed(breed);
+        __args__.setBreedName(breedName);
         __args__.write(__prot__);
         __prot__.writeMessageEnd();
       }
@@ -202,13 +202,13 @@ public class DogBreedService {
       this(service, com.twitter.finagle.thrift.RichClientParam.apply(protocolFactory, com.twitter.finagle.service.ResponseClassifier.Default()));
     }
 
-    public Future<BreedInfoResponse> breedInfo(String breed) {
+    public Future<BreedInfoResponse> breedInfo(String breedName) {
       try {
         TReusableMemoryTransport __memoryTransport__ = tlReusableBuffer.get();
         TProtocol __prot__ = this.protocolFactory.getProtocol(__memoryTransport__);
         __prot__.writeMessageBegin(new TMessage("breedInfo", TMessageType.CALL, 0));
         breedInfo_args __args__ = new breedInfo_args();
-        __args__.setBreed(breed);
+        __args__.setBreedName(breedName);
 
         Function<byte[], com.twitter.util.Try<BreedInfoResponse>> replyDeserializer =
           new Function<byte[], com.twitter.util.Try<BreedInfoResponse>>() {
@@ -309,7 +309,7 @@ public class DogBreedService {
         }
         iprot.readMessageEnd();
         breedInfo_result result = new breedInfo_result();
-        result.success = iface_.breedInfo(args.breed);
+        result.success = iface_.breedInfo(args.breedName);
         
         oprot.writeMessageBegin(new TMessage("breedInfo", TMessageType.REPLY, seqid));
         result.write(oprot);
@@ -432,7 +432,7 @@ public class DogBreedService {
         private final com.twitter.finagle.Service<breedInfo_args, BreedInfoResponse> methodService = new com.twitter.finagle.Service<breedInfo_args, BreedInfoResponse>() {
           @Override
           public Future<BreedInfoResponse> apply(breedInfo_args args) {
-            Future<BreedInfoResponse> future = iface.breedInfo(args.breed);
+            Future<BreedInfoResponse> future = iface.breedInfo(args.breedName);
             return future;
           }
         };
@@ -539,14 +539,14 @@ public class DogBreedService {
   public static class breedInfo_args implements TBase<breedInfo_args, breedInfo_args._Fields>, java.io.Serializable, Cloneable, ThriftStructIface {
   private static final TStruct STRUCT_DESC = new TStruct("breedInfo_args");
 
-  private static final TField BREED_FIELD_DESC = new TField("breed", TType.STRING, (short)1);
+  private static final TField BREED_NAME_FIELD_DESC = new TField("breedName", TType.STRING, (short)1);
 
 
-  public String breed;
+  public String breedName;
 
   /** The set of fields this object contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements TFieldIdEnum {
-    BREED((short)1, "breed");
+    BREED_NAME((short)1, "breedName");
   
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
   
@@ -561,8 +561,8 @@ public class DogBreedService {
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // BREED
-          return BREED;
+        case 1: // BREED_NAME
+          return BREED_NAME;
         default:
           return null;
       }
@@ -622,7 +622,7 @@ public class DogBreedService {
   static {
     Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
     Set<FieldValueMetaData> tmpSet = new HashSet<FieldValueMetaData>();
-    tmpMap.put(_Fields.BREED, new FieldMetaData("breed", TFieldRequirementType.DEFAULT,
+    tmpMap.put(_Fields.BREED_NAME, new FieldMetaData("breedName", TFieldRequirementType.DEFAULT,
       new FieldValueMetaData(TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     binaryFieldValueMetaDatas = Collections.unmodifiableSet(tmpSet);
@@ -664,18 +664,18 @@ public class DogBreedService {
   }
 
   public breedInfo_args(
-    String breed)
+    String breedName)
   {
     this();
-    this.breed = breed;
+    this.breedName = breedName;
   }
 
   /**
    * Performs a deep copy on <i>other</i>.
    */
   public breedInfo_args(breedInfo_args other) {
-    if (other.isSetBreed()) {
-      this.breed = other.breed;
+    if (other.isSetBreedName()) {
+      this.breedName = other.breedName;
     }
   }
 
@@ -691,42 +691,42 @@ public class DogBreedService {
 
   @java.lang.Override
   public void clear() {
-    this.breed = null;
+    this.breedName = null;
   }
 
-  public String getBreed() {
-    return this.breed;
+  public String getBreedName() {
+    return this.breedName;
   }
 
-  public breedInfo_args setBreed(String breed) {
-    this.breed = breed;
+  public breedInfo_args setBreedName(String breedName) {
+    this.breedName = breedName;
     
     return this;
   }
 
-  public void unsetBreed() {
-    this.breed = null;
+  public void unsetBreedName() {
+    this.breedName = null;
   }
 
-  /** Returns true if field breed is set (has been assigned a value) and false otherwise */
-  public boolean isSetBreed() {
-    return this.breed != null;
+  /** Returns true if field breedName is set (has been assigned a value) and false otherwise */
+  public boolean isSetBreedName() {
+    return this.breedName != null;
   }
 
-  public void setBreedIsSet(boolean value) {
+  public void setBreedNameIsSet(boolean value) {
     if (!value) {
-      this.breed = null;
+      this.breedName = null;
     }
   }
 
   @SuppressWarnings("unchecked")
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case BREED:
+    case BREED_NAME:
       if (value == null) {
-        unsetBreed();
+        unsetBreedName();
       } else {
-        setBreed((String)value);
+        setBreedName((String)value);
       }
       break;
     }
@@ -734,8 +734,8 @@ public class DogBreedService {
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case BREED:
-      return getBreed();
+    case BREED_NAME:
+      return getBreedName();
     }
     throw new IllegalStateException();
   }
@@ -747,8 +747,8 @@ public class DogBreedService {
     }
 
     switch (field) {
-    case BREED:
-      return isSetBreed();
+    case BREED_NAME:
+      return isSetBreedName();
     }
     throw new IllegalStateException();
   }
@@ -769,12 +769,12 @@ public class DogBreedService {
   private boolean equalsWithoutPassthrough(breedInfo_args that) {
     if (that == null)
       return false;
-    boolean this_present_breed = true && this.isSetBreed();
-    boolean that_present_breed = true && that.isSetBreed();
-    if (this_present_breed || that_present_breed) {
-      if (!(this_present_breed && that_present_breed))
+    boolean this_present_breedName = true && this.isSetBreedName();
+    boolean that_present_breedName = true && that.isSetBreedName();
+    if (this_present_breedName || that_present_breedName) {
+      if (!(this_present_breedName && that_present_breedName))
         return false;
-      if (!this.breed.equals(that.breed))
+      if (!this.breedName.equals(that.breedName))
         return false;
     }
     return true;
@@ -784,8 +784,8 @@ public class DogBreedService {
   @java.lang.Override
   public int hashCode() {
     int hashCode = 1;
-    if (isSetBreed()) {
-      hashCode = 31 * hashCode + breed.hashCode();
+    if (isSetBreedName()) {
+      hashCode = 31 * hashCode + breedName.hashCode();
     }
     return hashCode;
   }
@@ -798,12 +798,12 @@ public class DogBreedService {
     int lastComparison = 0;
     breedInfo_args typedOther = (breedInfo_args)other;
 
-    lastComparison = Boolean.valueOf(isSetBreed()).compareTo(typedOther.isSetBreed());
+    lastComparison = Boolean.valueOf(isSetBreedName()).compareTo(typedOther.isSetBreedName());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetBreed()) {
-      lastComparison = TBaseHelper.compareTo(this.breed, typedOther.breed);
+    if (isSetBreedName()) {
+      lastComparison = TBaseHelper.compareTo(this.breedName, typedOther.breedName);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -826,9 +826,9 @@ public class DogBreedService {
         break;
       }
       switch (field.id) {
-        case 1: // BREED
-          TProtocols.validateFieldType(TType.STRING, field.type, "breed");
-          this.breed = iprot.readString();
+        case 1: // BREED_NAME
+          TProtocols.validateFieldType(TType.STRING, field.type, "breedName");
+          this.breedName = iprot.readString();
           break;
         default:
           TProtocolUtil.skip(iprot, field.type);
@@ -845,9 +845,9 @@ public class DogBreedService {
     validate();
     
     oprot.writeStructBegin(STRUCT_DESC);
-    if (this.breed != null) {
-      oprot.writeFieldBegin(BREED_FIELD_DESC);
-      oprot.writeString(this.breed);
+    if (this.breedName != null) {
+      oprot.writeFieldBegin(BREED_NAME_FIELD_DESC);
+      oprot.writeString(this.breedName);
       oprot.writeFieldEnd();
     }
     oprot.writeFieldStop();
@@ -858,11 +858,11 @@ public class DogBreedService {
   public String toString() {
     StringBuilder sb = new StringBuilder("breedInfo_args(");
     boolean first = true;
-    sb.append("breed:");
-    if (this.breed == null) {
+    sb.append("breedName:");
+    if (this.breedName == null) {
       sb.append("null");
     } else {
-      sb.append(this.breed);
+      sb.append(this.breedName);
     }
     first = false;
     sb.append(")");
